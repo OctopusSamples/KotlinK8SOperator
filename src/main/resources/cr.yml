@@ -4,4 +4,3 @@ metadata:
   name: example-webserver
 spec:
   replicas: 5
-  content: Hello World!

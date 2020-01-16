@@ -4,6 +4,4 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import io.fabric8.kubernetes.api.model.KubernetesResource
 
 @JsonDeserialize
-data class WebServerSpec(val content: String = "", val replicas: Int = 0) : KubernetesResource {
-
-}
+data class WebServerSpec(val replicas: Int = 0) : KubernetesResource
