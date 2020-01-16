@@ -88,7 +88,7 @@ class WebServerController(private val kubernetesClient: KubernetesClient,
 
         if (existingPods < webServer.spec.replicas) {
             createPod(webServer)
-        } else {
+        } else if (existingPods > webServer.spec.replicas) {
             kubernetesClient
                     .pods()
                     .inNamespace(webServer.metadata.namespace)
