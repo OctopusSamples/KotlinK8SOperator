@@ -30,7 +30,12 @@ fun main(args: Array<String>) {
                 WebServer::class.java,
                 WebServerList::class.java,
                 10 * 60 * 1000.toLong())
-        val webServerController = WebServerController(client, podSharedIndexInformer, webServerSharedIndexInformer, namespace)
+        val webServerController = WebServerController(
+                client,
+                podSharedIndexInformer,
+                webServerSharedIndexInformer,
+                webServerCustomResourceDefinitionContext,
+                namespace)
 
         webServerController.create()
         informerFactory.startAllRegisteredInformers()

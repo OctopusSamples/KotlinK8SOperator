@@ -5,6 +5,7 @@ import io.fabric8.kubernetes.api.model.OwnerReference
 import io.fabric8.kubernetes.api.model.Pod
 import io.fabric8.kubernetes.api.model.PodBuilder
 import io.fabric8.kubernetes.client.KubernetesClient
+import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler
 import io.fabric8.kubernetes.client.informers.SharedIndexInformer
 import io.fabric8.kubernetes.client.informers.cache.Cache
@@ -17,6 +18,7 @@ import java.util.concurrent.ArrayBlockingQueue
 class WebServerController(private val kubernetesClient: KubernetesClient,
                           private val podInformer: SharedIndexInformer<Pod>,
                           private val webServerInformer: SharedIndexInformer<WebServer>,
+                          private val webServerResourceDefinition: CustomResourceDefinitionContext,
                           private val namespace: String) {
     private val APP_LABEL = "app"
     private val webServerLister = Lister<WebServer>(webServerInformer.indexer, namespace)
@@ -83,6 +85,11 @@ class WebServerController(private val kubernetesClient: KubernetesClient,
     private fun reconcile(webServer: WebServer) {
         val pods = podCountByLabel(APP_LABEL, webServer.metadata.name)
         val existingPods = pods.size
+
+        kubernetesClient.customResource(webServerResourceDefinition).updateStatus(
+                webServer.metadata.namespace,
+                webServer.metadata.name,
+                mapOf("count" to existingPods))
 
         if (existingPods < webServer.spec.replicas) {
             createPods(webServer.spec.replicas - existingPods, webServer)
