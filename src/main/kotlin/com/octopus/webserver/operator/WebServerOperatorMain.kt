@@ -14,6 +14,15 @@ fun main(args: Array<String>) {
     val client = DefaultKubernetesClient()
     client.use {
         val namespace = client.namespace ?: "default"
+        val podSetCustomResourceDefinition = CustomResourceDefinitionBuilder()
+                .withNewMetadata().withName("webservers.demo.k8s.io").endMetadata()
+                .withNewSpec()
+                .withGroup("demo.k8s.io")
+                .withVersion("v1alpha1")
+                .withNewNames().withKind("WebServer").withPlural("webservers").endNames()
+                .withScope("Namespaced")
+                .endSpec()
+                .build()
         val webServerCustomResourceDefinitionContext = CustomResourceDefinitionContext.Builder()
                 .withVersion("v1alpha1")
                 .withScope("Namespaced")
@@ -34,7 +43,7 @@ fun main(args: Array<String>) {
                 client,
                 podSharedIndexInformer,
                 webServerSharedIndexInformer,
-                webServerCustomResourceDefinitionContext,
+                podSetCustomResourceDefinition,
                 namespace)
 
         webServerController.create()

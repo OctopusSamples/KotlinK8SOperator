@@ -9,3 +9,5 @@ spec:
     kind: WebServer
     plural: webservers
   scope: Namespaced
+  subresources:
+    status: {}
