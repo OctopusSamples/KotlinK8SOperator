@@ -3,7 +3,6 @@ package com.octopus.webserver.operator.controller
 import com.octopus.webserver.operator.crd.DoneableWebServer
 import com.octopus.webserver.operator.crd.WebServer
 import com.octopus.webserver.operator.crd.WebServerList
-import com.octopus.webserver.operator.crd.WebServerStatus
 import io.fabric8.kubernetes.api.model.OwnerReference
 import io.fabric8.kubernetes.api.model.Pod
 import io.fabric8.kubernetes.api.model.PodBuilder
@@ -26,7 +25,7 @@ class WebServerController(private val kubernetesClient: KubernetesClient,
     private val APP_LABEL = "app"
     private val webServerLister = Lister<WebServer>(webServerInformer.indexer, namespace)
     private val podLister = Lister<Pod>(podInformer.indexer, namespace)
-    private val workqueue = ArrayBlockingQueue<String>(1024)
+    private val workQueue = ArrayBlockingQueue<String>(1024)
 
     fun create() {
         webServerInformer.addEventHandler(object : ResourceEventHandler<WebServer> {
@@ -60,7 +59,7 @@ class WebServerController(private val kubernetesClient: KubernetesClient,
     private fun enqueueWebServer(webServer: WebServer) {
         val key: String = Cache.metaNamespaceKeyFunc(webServer)
         if (key.isNotEmpty()) {
-            workqueue.add(key)
+            workQueue.add(key)
         }
     }
 
@@ -137,7 +136,7 @@ class WebServerController(private val kubernetesClient: KubernetesClient,
         blockUntilSynced()
         while (true) {
             try {
-                workqueue
+                workQueue
                         .take()
                         .split("/")
                         .toTypedArray()[1]
