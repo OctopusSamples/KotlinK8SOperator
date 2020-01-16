@@ -26,33 +26,33 @@ class WebServerController(private val kubernetesClient: KubernetesClient,
     fun create() {
         webServerInformer.addEventHandler(object: ResourceEventHandler<WebServer> {
             override fun onAdd(webServer: WebServer) {
-                enqueuePodSet(webServer);
+                enqueueWebServer(webServer)
             }
 
             override fun onUpdate(webServer: WebServer, newWebServer: WebServer) {
-                enqueuePodSet(newWebServer);
+                enqueueWebServer(newWebServer)
             }
 
             override fun onDelete(webServer: WebServer, b: Boolean) { }
-        });
+        })
 
         podInformer.addEventHandler(object: ResourceEventHandler<Pod> {
             override fun onAdd(pod:Pod) {
-                handlePodObject(pod);
+                handlePodObject(pod)
             }
 
             override fun onUpdate(oldPod: Pod , newPod: Pod) {
                 if (oldPod.metadata.resourceVersion == newPod.metadata.resourceVersion) {
-                    return;
+                    return
                 }
-                handlePodObject(newPod);
+                handlePodObject(newPod)
             }
 
             override fun onDelete(pod:Pod , b: Boolean) { }
-        });
+        })
     }
 
-    private fun enqueuePodSet(webServer: WebServer) {
+    private fun enqueueWebServer(webServer: WebServer) {
         val key: String = Cache.metaNamespaceKeyFunc(webServer)
         if (key.isNotEmpty()) {
             workqueue.add(key)
@@ -66,7 +66,7 @@ class WebServerController(private val kubernetesClient: KubernetesClient,
         }
         val webServer: WebServer = webServerLister.get(ownerReference.name)
         if (webServer != null) {
-            enqueuePodSet(webServer)
+            enqueueWebServer(webServer)
         }
     }
 
@@ -95,11 +95,11 @@ class WebServerController(private val kubernetesClient: KubernetesClient,
         }
     }
 
-    private fun podCountByLabel(label: String, podSetName: String): List<String> {
+    private fun podCountByLabel(label: String, webServerName: String): List<String> {
         val podNames: MutableList<String> = ArrayList()
         val pods = podLister.list()
         for (pod in pods) {
-            if (pod.metadata.labels.entries.contains(SimpleEntry(label, podSetName))) {
+            if (pod.metadata.labels.entries.contains(SimpleEntry(label, webServerName))) {
                 if (pod.status.phase == "Running" || pod.status.phase == "Pending") {
                     podNames.add(pod.metadata.name)
                 }
