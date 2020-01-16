@@ -1,0 +1,7 @@
+apiVersion: demo.k8s.io/v1alpha1
+kind: WebServer
+metadata:
+  name: example-webserver
+spec:
+  replicas: 5
+  content: Hello World!

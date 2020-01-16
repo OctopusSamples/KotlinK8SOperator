@@ -1,14 +1,10 @@
 package com.octopus.webserver.operator.controller
 
-import com.octopus.webserver.operator.crd.DoneableWebServer
 import com.octopus.webserver.operator.crd.WebServer
-import com.octopus.webserver.operator.crd.WebServerList
 import io.fabric8.kubernetes.api.model.OwnerReference
 import io.fabric8.kubernetes.api.model.Pod
 import io.fabric8.kubernetes.api.model.PodBuilder
 import io.fabric8.kubernetes.client.KubernetesClient
-import io.fabric8.kubernetes.client.dsl.MixedOperation
-import io.fabric8.kubernetes.client.dsl.Resource
 import io.fabric8.kubernetes.client.informers.ResourceEventHandler
 import io.fabric8.kubernetes.client.informers.SharedIndexInformer
 import io.fabric8.kubernetes.client.informers.cache.Cache
@@ -19,7 +15,6 @@ import java.util.concurrent.ArrayBlockingQueue
 
 
 class WebServerController(private val kubernetesClient: KubernetesClient,
-                          private val webServerClient: MixedOperation<WebServer, WebServerList, DoneableWebServer, Resource<WebServer, DoneableWebServer>>,
                           private val podInformer: SharedIndexInformer<Pod>,
                           private val webServerInformer: SharedIndexInformer<WebServer>,
                           private val namespace: String) {
